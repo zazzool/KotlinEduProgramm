@@ -1,0 +1,19 @@
+type: code
+custom_name: The sequence 1 2 2 3 3 3 ...
+files:
+- name: src/Main.kt
+  visible: true
+  text: |-
+    import java.util.*
+
+    fun main(args: Array<String>) {
+        val scanner = Scanner(System.`in`)
+        // put your code here
+    }
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/4668#comment
+status: Solved
+feedback:
+  message: <html>Correct solution</html>
+  time: Sat, 05 Dec 2020 16:20:54 UTC
+record: -1
