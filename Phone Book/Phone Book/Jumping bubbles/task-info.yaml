@@ -1,0 +1,178 @@
+type: edu
+custom_name: stage2
+files:
+- name: src/phonebook/Main.kt
+  visible: true
+  text: |-
+    package phonebook
+
+    import java.io.File
+    import java.util.*
+
+    fun main() {
+        PhoneBook.start()
+    }
+
+    //class Main() {
+    //    init {
+    //        PhoneBook.start()
+    //    }
+    //}
+
+    object PhoneBook {
+        private lateinit var file: File
+        private var indexed = mutableMapOf<String, MutableList<Long>>()
+        private var data = mutableListOf<String>()
+
+        private val userInput = Scanner(System.`in`)
+
+        fun start() {
+            file = File("C:\\tst\\directory.txt")
+            data = file.readLines().toMutableList()
+    //        readFileToList()
+            searchByFile()
+    //        menu()
+        }
+
+        private fun searchByFile() {
+            var stringsToFind = File("C:\\tst\\find.txt").readLines()
+            val total = stringsToFind.size
+            println("Start searching...")
+            val start = System.currentTimeMillis()
+            var count = 0
+
+            data.map {
+                for (req in stringsToFind) {
+                    if (it.contains(req)) count++
+                }
+            }
+            if (count > total) count = total
+            val endTime = System.currentTimeMillis() - start
+            println("Found $count / $total entries. Time taken: " +
+                    "${String.format("%1\$tM min. %1\$tS sec. %1\$tL ms.", endTime)}" )
+
+        }
+
+        private fun menu() {
+            println("""
+                1. Search with index
+                2. Search native
+                0. Exit
+            """.trimIndent())
+            when (userInput.nextLine().toInt()) {
+                1 -> {
+                    print("Enter a query: ")
+                    val request = userInput.nextLine()
+                    searchIndexed(request)
+                }
+                2 -> {
+                    print("Enter a query: ")
+                    val request = userInput.nextLine()
+                    searchNative(request)
+                }
+                0 -> return
+            }
+            menu()
+        }
+
+        private fun searchNative(value: String) {
+            println("Start native searching...")
+            val start = System.currentTimeMillis()
+            val found = data.filter { it.contains(value) }
+            if (found.isEmpty()) {
+                println("No records found")
+            } else {
+                found.map {
+                    println(it)
+                }
+                println("Found ${found.size} / ${data.size}")
+            }
+            val endTime = System.currentTimeMillis() - start
+
+            println(String.format("%1\$tM min. %1\$tS sec. %1\$tL ms.", endTime))
+        }
+
+        private fun searchIndexed(value: String) {
+            println("Start searching with index...")
+            val start = System.currentTimeMillis()
+            val indexedValue = indexed[value.toLowerCase()] ?: listOf<Long>()
+            val found = data.filterIndexed { index, _ -> indexedValue.contains(index.toLong()) }
+            if (found.isEmpty()) {
+                println("No records found")
+            } else {
+                println(found.size)
+                found.map {
+                    println(it)
+                }
+                println("Found ${found.size} / ${data.size}")
+            }
+            val endTime = System.currentTimeMillis() - start
+            println(String.format("%1\$tM min. %1\$tS sec. %1\$tL ms.", endTime))
+        }
+
+        private fun readFileToList() {
+            println("Start indexing...")
+            val start = System.currentTimeMillis()
+            var idx = 0L
+            file.forEachLine {
+                data.add(it)
+                it.split(" ").drop(1).map { el ->
+                    val i = el.toLowerCase()
+                    if (indexed.containsKey(i)) {
+                        indexed[i]?.add(idx)
+                    } else indexed.put(i, mutableListOf(idx))
+                }
+                idx++
+            }
+            val endTime = System.currentTimeMillis() - start
+            println(String.format("%1\$tM min. %1\$tS sec. %1\$tL ms.", endTime))
+            println("Indexed ${indexed.size} words.")
+        }
+    }
+  learner_created: false
+- name: test/PhoneBookTest.java
+  visible: false
+  text: |
+    import org.hyperskill.hstest.stage.StageTest;
+    import org.hyperskill.hstest.testcase.CheckResult;
+    import org.hyperskill.hstest.testcase.TestCase;
+    import phonebook.MainKt;
+
+    import java.util.Arrays;
+    import java.util.List;
+
+    public class PhoneBookTest extends StageTest {
+        public PhoneBookTest() {
+            super(MainKt.class);
+        }
+
+        @Override
+        public List<TestCase> generate() {
+            return Arrays.asList(
+                new TestCase().setTimeLimit(30 * 60 * 1000)
+            );
+        }
+
+        @Override
+        public CheckResult check(String reply, Object clue) {
+            reply = reply.toLowerCase();
+            return new CheckResult(
+                reply.contains("start searching")
+                    && reply.contains("found")
+                    && reply.contains("min.")
+                    && reply.contains("sec.")
+                    && reply.contains("ms.")
+                    && reply.contains("sorting time")
+                    && reply.contains("searching time")
+                    && reply.contains("linear search")
+                    && reply.contains("bubble sort")
+                    && reply.contains("jump search"));
+        }
+    }
+  learner_created: false
+feedback_link: https://hyperskill.org/projects/86/stages/477/implement#comment
+status: Failed
+feedback:
+  message: Compilation Failed
+  time: Tue, 12 Jan 2021 18:35:38 UTC
+record: -1
